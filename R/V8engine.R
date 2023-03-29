@@ -31,16 +31,16 @@ V8engine <- function(options) {
     }
   }
   code <- as.character(c(options$code))
-  if(!.context$validate(code)) stop("unvalid javascript code")
+  if(!.context$validate(code)) stop("invalid javascript code")
   if(!is.element(options$results, c("hide", "last"))){
     code <- group_src_V8(code, .context)
     output <- sapply(code, function(code) .context$eval(code))
-    code <-  sapply(code, function(code) knitr:::wrap.source(list(src= paste(code, collapse = "\n")), options))
+    code <-  sapply(code, function(code) knitr:::wrap_rmd(text = paste(code, collapse = "\n")))
   }else{
     if(options$results=="last") output <- .context$eval(code)
-    code <-  knitr:::wrap.source(list(src= paste(code, collapse = "\n")), options)
+    code <- knitr:::wrap_rmd(text = paste(code, collapse = "\n"))
     if(options$results=="hide") return(code)
-    return(c(code, knitr:::wrap.character(output, options)))
+    return(c(code, knitr:::msg_wrap(output, type = "message", options = options)))
   }
-  return(c(sapply(seq_along(code), function(i) c(code[i], knitr:::wrap.character(output[i], options)))))
+  knitr::engine_output(options, code, output)
 }
